@@ -1,4 +1,4 @@
-# Heardles Ultimate
+# Heardle Ultimate
 
 ## Wayland High School - HACS (Honors Applied Computer Science) Project
 
