@@ -1,0 +1,1 @@
+playButton = document.evaluate("/html/body/div/div/div[1]/div/div[4]/div/div[2]/button", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;

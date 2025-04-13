@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - Heardle Ultimate</title>
+    <link rel="icon" href="../static/heardles_us_icon.png">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../static/defaults.css">
+    <link rel="stylesheet" href="../static/nav_bar.css">
+    <link rel="stylesheet" href="../static/home.css">
+    <link rel="stylesheet" href="../static/user_dropdown.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Boxicons -->
+     <script src="https://unpkg.com/boxicons@2.1.4/dist/boxicons.js"></script>
+</head>
+    <body>
+        <nav>
+            <div class="navbar-title">HeardleUltimate by Ben Stahl</div>
+            <div class="navbar-user">
+                <div class="navbar-user-top">
+                    <img class="user-image" alt="{{user_display_name}} Picture" src="{{user_image}}">
+                    <div class="user-title">
+                        {{user_display_name}}
+                    </div>
+                    <i class='bx bx-chevron-down'></i>
+                </div>
+                <div class="user-dropdown">
+                    <a class="user-option" href="/logout"><span>Log Out</span></a>
+                </div>
+            </div>
+        </nav>
+
+        <div class="home-section">
+            <div class="search-bar-container">
+                <div class="search-bar-box">
+                    <div class="search-bar">
+                        <i class='bx bx-search-alt-2' ></i>  <!-- -->
+                        <input id="search-input" placeholder="Search artist">
+                    </div>
+                </div>
+            </div>
+            <div class="artist-list-container">
+                <div class="artist-list"></div>
+            </div>
+            <div class="categories-section">
+
+                <div class="category-container">
+                  <h3 class="category-header"> Popular Artist Plays </h3>
+                  <div class="category-list">
+                      {% for artist in artists_data %}
+                        <div class="category-card">
+                            <img class="card-image" src="{{artist['images'][0]['url']}}" alt="{{artist['name']}}">
+                            <h3 class="card-title">{{artist['name']}}</h3>
+                            <p title="{{artist['genres'][0] | title}} Artist" class="card-description">{{artist['genres'][0] | title}} Artist</p>
+                            <div class="game-button-container">
+                                <a href="/infinity-heardle?artist={{artist['id']}}"><i title="Infinite Heardle" class='bx bx-infinite'></i></a>
+                            </div>
+                        </div>
+                      {% endfor %}
+
+                  </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </body>
+<script src="../static/scripts/user_dropdown.js"></script>
+<script>
+    let search_bar_input = document.querySelector(".search-bar input")
+
+    async function collect_search(search) {
+        console.log("Collecting search results...")
+        let search_results;
+        let search_request = await fetch(
+            "https://api.spotify.com/v1/search?" + new URLSearchParams(
+            {
+                q: search,
+                type: "artist",
+            }),
+            {
+                headers: new Headers({
+                  Authorization: "Bearer {{access_token}}",
+                }),
+              }).then(function(response) { return response.json(); })
+                .then(function(json) {
+                    console.log(json);
+                  let artists_list = json.artists.items;
+                  for (let i = 0; i < artists_list.length; i++) {
+                      let artist = artists_list[i];
+                      let track_item_div = document.createElement("div")
+                      track_item_div.className = "track item"
+                      track_item_div.onclick = function () {
+                          document.location.href = "/infinity-heardle?artist=" + artist.id;
+                      }
+
+                      let artist_cover_img = document.createElement("img")
+                      artist_cover_img.className = "artist cover"
+                      artist_cover_img.alt = "Artist profile picture"
+                      artist_cover_img.src = artist.images[0].url;
+
+                      let artist_name_div = document.createElement("div");
+                      artist_name_div.className = "artist name";
+                      artist_name_div.innerText = artist.name;
+
+                      track_item_div.appendChild(artist_cover_img);
+                      track_item_div.appendChild(artist_name_div);
+
+                      const element = document.querySelector(".artist-list");
+                      element.appendChild(track_item_div);
+                  }
+                });
+        return await search_results
+    }
+
+    let update_search_dropdown = function (e) {
+        let artist_list = document.querySelector(".artist-list")
+        let input = e.target.value;
+        // Remove all child elements of list
+        while (artist_list.firstChild) {
+            artist_list.removeChild(artist_list.firstChild);
+        }
+
+        let search_results = collect_search(input)
+        console.log(search_results)
+        for (let i = 0; i < search_results.length; i++) {
+
+        }
+
+
+    }
+        search_bar_input.addEventListener("input", update_search_dropdown)
+
+</script>
+</html>
